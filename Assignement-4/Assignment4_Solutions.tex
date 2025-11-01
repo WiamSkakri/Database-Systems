@@ -15,7 +15,7 @@
 % Page setup
 \geometry{margin=1in}
 \title{Assignment 4 Solutions}
-\author{Your Name}
+\author{Wiam Skakri}
 \date{\today}
 
 \begin{document}
@@ -27,31 +27,150 @@
 
 \subsection{Question 1(a)}
 
-% Your answer for Question 1a goes here
-% TODO: Add your answer to Question 1a
+
+\begin{verbatim}
+    CREATE VIEW Deidentified_Exp AS
+    SELECT E.expID, AM.modelName, P.age AS patientAge, P.diagnosis, 
+        E.predictedRisk, E.trueOutcome, E.accuracy
+    FROM Experiment AS E
+    JOIN Patient AS P ON E.patientID = P.patientID
+    JOIN AIModel AS AM ON E.modelID = AM.modelID;
+\end{verbatim}
+
 
 \subsection{Question 1(b)}
 
-% Your answer for Question 1b goes here
+\begin{verbatim}
+    CREATE VIEW High_Performance_models AS
+    SELECT E.expID, AM.modelName, E.accuracy, E.predictedRisk, E.runtimeSec
+    FROM Experiment AS E
+    JOIN AIModel AS AM ON AM.modelID = E.modelID
+    WHERE E.accuracy >= 0.9 AND E.runtimeSec < 100;
+\end{verbatim}
 
 \subsection{Question 1(c)}
 
-% Your answer for Question 1c goes here
+\begin{verbatim}
+    CREATE VIEW Model_Avg_Accuracy AS
+    SELECT AM.modelID, AM.modelName, AVG(E.accuracy) AS avgAccuracy
+    FROM AIModel AS AM
+    JOIN Experiment AS E ON AM.modelID = E.modelID
+    GROUP BY AM.modelID, AM.modelName;
+\end{verbatim}
 
 % Question 2
 \section{Question 2}
 
-% Your answer for Question 2 goes here
+\vspace{0.5cm}
+
+\noindent\textbf{Q1 (5):} Find the expID and model names where the model accuracy $\geq$ 0.95.
+
+\noindent\hspace{1cm}\textbf{Answer:} \texttt{High\_Performance\_models} (view b)
+
+\noindent\hspace{1cm}This view contains expID, modelName, and accuracy. We can query it with an additional filter for accuracy $\geq$ 0.95.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Q2 (5):} List the model names and their accuracy with predictedRisk $<$ 0.3.
+
+\noindent\hspace{1cm}\textbf{Answer:} \texttt{Deidentified\_Exp} (view a)
+
+\noindent\hspace{1cm}This view contains modelName, accuracy, and predictedRisk, so we can filter by predictedRisk $<$ 0.3.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Q3 (5):} List all patient age and diagnosis, along with predictedRisk and accuracy.
+
+\noindent\hspace{1cm}\textbf{Answer:} \texttt{Deidentified\_Exp} (view a)
+
+\noindent\hspace{1cm}This view contains patientAge (aliased from age), diagnosis, predictedRisk, and accuracy. It includes all the required attributes.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Q4 (5):} List each AI model and its average accuracy across all experiments.
+
+\noindent\hspace{1cm}\textbf{Answer:} \texttt{Model\_Avg\_Accuracy} (view c)
+
+\noindent\hspace{1cm}This view is specifically designed for this query. It already contains modelID, modelName, and avgAccuracy (pre-aggregated across all experiments), so it can be queried directly without additional aggregation.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Q5 (6):} List all expID of the experiments with model accuracy $\geq$ 0.90 and the domain of the models in "medical".
+
+\noindent\hspace{1cm}\textbf{Answer:} None of the views
+
+\noindent\hspace{1cm}Neither \texttt{Deidentified\_Exp} nor \texttt{High\_Performance\_models} contains the \texttt{domain} column from the AIModel table, which is required to filter by domain = "medical". Therefore, we must query the base tables.
 
 % Question 3
 \section{Question 3}
 
-% Your answer for Question 3 goes here
+\subsection{Scenario A}
+
+\noindent\textbf{ACID Property:} Atomicity
+
+\vspace{0.3cm}
+
+\noindent\textbf{Explanation:}
+
+This scenario violates the \textbf{Atomicity} property of ACID. Atomicity requires that a transaction must be treated as a single, indivisible unit of work—either all operations within the transaction are completed successfully, or none of them are applied to the database.
+
+In Scenario A, the AI agent crashes after reducing the available seats in Trip.availableSeats but before inserting the booking record into the Booking table. This represents a partial execution of the transaction. After recovery, the system restored to a state where no seats were deducted and no booking exists, which indicates that the transaction was rolled back.
+
+\subsection{Scenario B}
+
+\noindent\textbf{ACID Property:} Durability
+
+\vspace{0.3cm}
+
+\noindent\textbf{Explanation:}
+
+This scenario demonstrates the \textbf{Durability} property of ACID. Durability ensures that once a transaction has been committed, its effects are permanent and will persist even in the face of system failures such as crashes, power outages, or hardware failures.
+
+In Scenario B, the AI agent successfully completes the booking transaction, which means the transaction was committed to the database. Immediately after the commit, the system crashes. However, when the system restarts, both the booking record and the seat deduction are still present in the database.
+
+This shows that durability is being properly maintained. The database management system ensured that the committed transaction's changes were written to permanent storage (disk) rather than just being kept in volatile memory. As a result, the changes survived the system crash and remained persistent after recovery. This is exactly what the durability property guarantees: once a transaction is committed, its results are permanently recorded in the database, regardless of subsequent system failures.
+
+\subsection{Scenario C}
+
+\noindent\textbf{ACID Property:} Isolation
+
+\vspace{0.3cm}
+
+\noindent\textbf{Explanation:}
+
+This scenario violates the \textbf{Isolation} property of ACID. Isolation ensures that concurrent transactions do not interfere with each other and that each transaction executes as if it were the only transaction running on the database. The intermediate states and operations of one transaction should not be visible to or affect other concurrent transactions.
+
+In Scenario C, two AI agents simultaneously attempt to book the last seat on a trip. Both agents read availableSeats = 1 at roughly the same time, before either has performed any write operations. Based on this read, both transactions proceed to create a booking and decrement the available seats counter. The result is that two bookings succeed and availableSeats becomes negative (likely -1), causing an overbooking situation.
+
+This is a classic example of a race condition or "lost update" problem. The lack of proper isolation allowed both transactions to read the same value concurrently and make decisions based on potentially stale data. Neither transaction was aware of the other's actions until both had committed their changes. If proper isolation were maintained (such as using locks or a serializable isolation level), one transaction would have been forced to wait for the other to complete, preventing the double-booking scenario.
+
+\subsection{Scenario D}
+
+\noindent\textbf{ACID Property:} Consistency
+
+\vspace{0.3cm}
+
+\noindent\textbf{Explanation:}
+
+This scenario demonstrates the \textbf{Consistency} property of ACID being properly maintained. Consistency ensures that a transaction brings the database from one valid state to another valid state, maintaining all defined rules, constraints, integrity constraints, and business logic.
+
+In Scenario D, the AI agent attempts to book a trip when availableSeats = 0. Since there are no seats available, allowing this booking would violate a business rule that seats cannot be booked when none are available. The system automatically rejects the transaction, preventing the database from entering an invalid state.
+
 
 % Question 4
 \section{Question 4}
 
-% Your answer for Question 4 goes here
+\subsection{Schedule A}
+
+\indent Schedule A is a \textbf{serial schedule} where T1 executes completely before T2 begins. T1 reads the available seats, decrements the value, writes it back, and inserts the booking. Only after T1 completes does T2 start and perform the same sequence of operations on the updated value.
+
+Since Schedule A is serial, it is both \textbf{serializable} and \textbf{conflict serializable}. There are no conflicts or race conditions because the transactions do not interleave. T2 reads the correct updated value after T1's write, ensuring both bookings are processed correctly with accurate seat counts. This schedule guarantees correctness but offers no concurrency.
+
+\subsection{Schedule B}
+
+\indent Schedule B is an interleaved schedule where both T1 and T2 read Trip.availableSeats before either transaction performs any write operations. Both transactions then independently calculate their decremented values based on the same initial read. After both reads are complete, T1 writes its updated value, followed by T2 writing its updated value, and finally both insert their bookings.
+
+This schedule is \textbf{NOT conflict serializable} and produces incorrect results. The problem is a classic \textbf{lost update}: T2's write overwrites T1's write, causing T1's decrement to be lost. For example, if there are initially 2 available seats, both T1 and T2 read the value 2, both calculate 1 as the new value, and both write 1. The final value is 1 instead of the correct value of 0, even though two bookings were made. This is a write-write conflict that violates isolation and consistency, similar to Scenario C from Question 3. The schedule should be rejected or modified to use proper locking mechanisms to prevent the lost update problem.
 
 % Question 5
 \section{Question 5}
