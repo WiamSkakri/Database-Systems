@@ -128,7 +128,6 @@ This scenario demonstrates the \textbf{Durability} property of ACID. Durability 
 
 In Scenario B, the AI agent successfully completes the booking transaction, which means the transaction was committed to the database. Immediately after the commit, the system crashes. However, when the system restarts, both the booking record and the seat deduction are still present in the database.
 
-This shows that durability is being properly maintained. The database management system ensured that the committed transaction's changes were written to permanent storage (disk) rather than just being kept in volatile memory. As a result, the changes survived the system crash and remained persistent after recovery. This is exactly what the durability property guarantees: once a transaction is committed, its results are permanently recorded in the database, regardless of subsequent system failures.
 
 \subsection{Scenario C}
 

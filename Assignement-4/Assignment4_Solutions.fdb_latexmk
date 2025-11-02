@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1762041211.56427 "/Users/wiamskakri/Documents/GitHub/Fall2025/Database-Systems/Assignement-4/Assignment4_Solutions.tex" "Assignment4_Solutions.pdf" "Assignment4_Solutions" 1762041212.08494 0
-  "/Users/wiamskakri/Documents/GitHub/Fall2025/Database-Systems/Assignement-4/Assignment4_Solutions.tex" 1762041210.76933 10366 ba7a50d49aa80a994af5ff95a53d45c9 ""
+["pdflatex"] 1762100866.34255 "/Users/wiamskakri/Documents/GitHub/Fall2025/Database-Systems/Assignement-4/Assignment4_Solutions.tex" "Assignment4_Solutions.pdf" "Assignment4_Solutions" 1762100866.96327 0
+  "/Users/wiamskakri/Documents/GitHub/Fall2025/Database-Systems/Assignement-4/Assignment4_Solutions.tex" 1762100865.42667 9863 55eb6e7a3127c4d3d110a513fc6e8f49 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -95,9 +95,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1753298527 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "Assignment4_Solutions.aux" 1762041212.03847 1876 8adf9d2a9ee3e50e4b52f90cefb10468 "pdflatex"
-  "Assignment4_Solutions.out" 1762041212.03926 1649 e9fff45af22b353409ad63b14cf71e45 "pdflatex"
-  "Assignment4_Solutions.tex" 1762041210.76933 10366 ba7a50d49aa80a994af5ff95a53d45c9 ""
+  "Assignment4_Solutions.aux" 1762100866.86015 1876 9e9d6e0f232dd9283e430cfbe0589d92 "pdflatex"
+  "Assignment4_Solutions.out" 1762100866.86078 1649 e9fff45af22b353409ad63b14cf71e45 "pdflatex"
+  "Assignment4_Solutions.tex" 1762100865.42667 9863 55eb6e7a3127c4d3d110a513fc6e8f49 ""
   (generated)
   "Assignment4_Solutions.aux"
   "Assignment4_Solutions.log"
