@@ -142,7 +142,7 @@ This scenario violates the \textbf{Isolation} property of ACID. Isolation ensure
 
 In Scenario C, two AI agents simultaneously attempt to book the last seat on a trip. Both agents read availableSeats = 1 at roughly the same time, before either has performed any write operations. Based on this read, both transactions proceed to create a booking and decrement the available seats counter. The result is that two bookings succeed and availableSeats becomes negative (likely -1), causing an overbooking situation.
 
-This is a classic example of a race condition or "lost update" problem. The lack of proper isolation allowed both transactions to read the same value concurrently and make decisions based on potentially stale data. Neither transaction was aware of the other's actions until both had committed their changes. If proper isolation were maintained (such as using locks or a serializable isolation level), one transaction would have been forced to wait for the other to complete, preventing the double-booking scenario.
+
 
 \subsection{Scenario D}
 
@@ -170,12 +170,30 @@ Since Schedule A is serial, it is both \textbf{serializable} and \textbf{conflic
 
 \indent Schedule B is an interleaved schedule where both T1 and T2 read Trip.availableSeats before either transaction performs any write operations. Both transactions then independently calculate their decremented values based on the same initial read. After both reads are complete, T1 writes its updated value, followed by T2 writing its updated value, and finally both insert their bookings.
 
-This schedule is \textbf{NOT conflict serializable} and produces incorrect results. The problem is a classic \textbf{lost update}: T2's write overwrites T1's write, causing T1's decrement to be lost. For example, if there are initially 2 available seats, both T1 and T2 read the value 2, both calculate 1 as the new value, and both write 1. The final value is 1 instead of the correct value of 0, even though two bookings were made. This is a write-write conflict that violates isolation and consistency, similar to Scenario C from Question 3. The schedule should be rejected or modified to use proper locking mechanisms to prevent the lost update problem.
+This schedule is \textbf{NOT conflict serializable} and produces incorrect results. The problem is a classic \textbf{lost update}: T2's write overwrites T1's write, causing T1's decrement to be lost.
+
+\subsection{Schedule C}
+
+\indent Schedule C demonstrates a \textbf{dirty read} problem. T2 reads "the updated value from T1" before T1 has actually written it to the database. This means T2 is reading uncommitted, in-memory changes from T1's transaction.
+
+This schedule is \textbf{NOT conflict serializable} because T2 is reading data that T1 has not yet committed. This violates isolation. If T1 were to abort after T2's read, T2 would be operating on invalid data that never existed in the database. 
 
 % Question 5
 \section{Question 5}
 
-% Your answer for Question 5 goes here
+\textbf{Answer: C. \{(11), (12)\}}
+
+\vspace{0.3cm}
+
+\indent To understand why option C is not possible under ACID guarantees, let's analyze each option:
+
+\textbf{Option A: \{(10), (12)\}} - T2 executes completely on both tuples: (5)→(10) and (6)→(12), while T1 never runs. This respects atomicity because T2 completed fully (all-or-nothing). Under ACID, it's acceptable for a transaction to not execute at all; what matters is that any transaction that does run must complete entirely. \textbf{This is possible.}
+
+\textbf{Option B: \{(11), (13)\}} - This is the result of serial execution T2→T1: T2 transforms (5)→(10) and (6)→(12), then T1 transforms (10)→(11) and (12)→(13). Both transactions execute completely on all tuples. \textbf{This is possible.}
+
+\textbf{Option C: \{(11), (12)\}} - To achieve (11), we need (5)→T2→(10)→T1→(11). To achieve (12), we need (6)→T2→(12) with no T1 applied. This means T1 was \textbf{partially executed}: it updated the first tuple but not the second tuple. This violates the \textbf{atomicity} property, which requires that a transaction must be executed completely on all affected data or not at all. T1 cannot selectively update only some tuples. \textbf{This is NOT possible.}
+
+\textbf{Option D: \{(12), (14)\}} - This is the result of serial execution T1→T2: T1 transforms (5)→(6) and (6)→(7), then T2 transforms (6)→(12) and (7)→(14). Both transactions execute completely on all tuples. \textbf{This is possible.}
 
 % Add more sections as needed for additional questions
 
