@@ -1,0 +1,366 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+
+% Page setup
+\geometry{margin=1in}
+\title{Assignment 5 Solutions}
+\author{Wiam Skakri}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% Question 1
+\section{Question 1}
+
+\subsection{Question 1(a)}
+
+
+
+
+\textbf{Analysis of the Options:}
+
+\textbf{Option 1 represents a CP (Consistency + Partition Tolerance) system.}
+
+\textit{Explanation:} By stopping acceptance of new orders during the network partition, the system prioritizes consistency over availability. This ensures that when the system does accept orders, all regions have consistent data and no conflicting updates occur. The system tolerates the partition (P) but sacrifices availability (A) by refusing service during the partition.
+
+\textbf{Option 2 represents an AP (Availability + Partition Tolerance) system.}
+
+\textit{Explanation:} By continuing to accept orders independently in both regions during the partition, the system prioritizes availability over consistency. Both US-East and US-West remain available and responsive to customer requests. The system tolerates the partition (P) but sacrifices consistency (C) because the two regions may accept conflicting orders that will need to be reconciled later, leading to temporary inconsistencies.
+
+
+\subsection{Question 1(b)}
+
+
+\textbf{Matching Transaction Behaviors:}
+
+\textbf{(i) The inventory update (T1) and payment (T2) in a single transaction must both succeed or both fail.}
+
+\textit{Answer:} \textbf{ACID} - This describes the \textit{Atomicity} property of ACID, where a transaction is treated as a single unit that either completely succeeds or completely fails. This all-or-nothing guarantee is fundamental to ACID systems.
+
+\textbf{(ii) During the partition, a customer might see an outdated inventory count, but the system eventually corrects it.}
+
+\textit{Answer:} \textbf{BASE} - This demonstrates \textit{Eventual Consistency}, a key characteristic of BASE systems. The system remains available during the partition (Basically Available) and allows temporary inconsistencies (Soft state) that are resolved over time (Eventual consistency).
+
+\textbf{(iii) The order database allows a "soft state" where temporary inconsistencies are acceptable for higher availability.}
+
+\textit{Answer:} \textbf{BASE} - This explicitly describes the \textit{Soft state} principle of BASE systems, where the system accepts that data may be in a temporary inconsistent state to maintain availability and partition tolerance.
+
+\textbf{(iv) Once the partition heals, replicas reconcile to the same final state.}
+
+\textit{Answer:} \textbf{BASE} - This describes the \textit{Eventual Consistency} aspect of BASE systems. After network partitions are resolved, the system reconciles conflicting updates across replicas to eventually reach a consistent state, even though consistency was not guaranteed during the partition.
+
+
+% Question 2
+\section{Question 2}
+
+\subsection{Question 2(a)}
+
+\textbf{Partitioning by Hash Function:}
+
+Given:
+\begin{itemize}
+    \item Hash function: $H(key) \mod 4$
+    \item 4 servers with IDs: 0, 1, 2, 3
+    \item $H(\text{"product:A10"}) = 10$
+    \item $H(\text{"user:1001:cart"}) = 5$
+\end{itemize}
+
+\textbf{Calculations:}
+
+For \textbf{"user:1001:cart"}:
+\begin{align*}
+H(\text{"user:1001:cart"}) \mod 4 &= 5 \mod 4 \\
+&= 1
+\end{align*}
+
+\textit{Answer:} \textbf{Server 1} will store "user:1001:cart"
+
+For \textbf{"product:A10"}:
+\begin{align*}
+H(\text{"product:A10"}) \mod 4 &= 10 \mod 4 \\
+&= 2
+\end{align*}
+
+\textit{Answer:} \textbf{Server 2} will store "product:A10"
+
+
+
+\subsection{Question 2(b)}
+
+\textbf{Relational Database Schema Translation:}
+
+Based on the key-value store examples, here are the relational tables that represent the same information:
+
+\textbf{Table 1: Users}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{userID (PK)} & \textbf{name} & \textbf{email} \\
+\hline
+1001 & Alice & alice@shop.com \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Table 2: Products}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{pid (PK)} & \textbf{name} & \textbf{price} & \textbf{stock} \\
+\hline
+A10 & Wireless Mouse & 24.99 & 58 \\
+\hline
+B25 & Mechanical Keyboard & 79.50 & 30 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Table 3: Carts}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{cartID (PK)} & \textbf{userID (FK)} \\
+\hline
+1 & 1001 \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Table 4: CartItems}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{cartID (FK)} & \textbf{pid (FK)} & \textbf{quantity} \\
+\hline
+1 & A10 & 2 \\
+\hline
+1 & B25 & 1 \\
+\hline
+\end{tabular}
+\end{center}
+\textit{Primary Key: (cartID, pid)}
+
+\textbf{Table 5: Orders}
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{orderID (PK)} & \textbf{userID (FK)} & \textbf{total} & \textbf{status} \\
+\hline
+9001 & 1001 & 129.48 & shipped \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Table 6: OrderItems}
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{orderID (FK)} & \textbf{pid (FK)} \\
+\hline
+9001 & A10 \\
+\hline
+9001 & B25 \\
+\hline
+\end{tabular}
+\end{center}
+\textit{Primary Key: (orderID, pid)}
+
+\textbf{Key Differences:}
+\begin{itemize}
+    \item The NoSQL key-value store uses nested JSON structures to represent relationships
+    \item The relational model normalizes data into separate tables with foreign key relationships
+    \item The relational model enforces referential integrity through primary and foreign key constraints
+    \item The key-value approach allows flexible schema and denormalization for faster reads
+\end{itemize}
+
+\subsection{Question 2(c)}
+
+\textbf{Data Lookups Required to Retrieve Shopping Cart and Compute Total Cost:}
+
+To retrieve the customer's shopping cart and compute the total cost, the following data lookups are needed:
+
+\textbf{Step 1: Retrieve the Shopping Cart}
+\begin{verbatim}
+GET user:1001:cart
+\end{verbatim}
+
+This returns:
+\begin{verbatim}
+{ "items": [ {"pid": "A10", "qty": 2}, {"pid": "B25", "qty": 1} ] }
+\end{verbatim}
+
+\textbf{Step 2: Retrieve Product Information for Each Item}
+
+For each product ID (pid) in the cart items, we need to fetch the product details to get the price:
+
+\begin{verbatim}
+GET product:A10
+\end{verbatim}
+Returns: \verb|{ "name": "Wireless Mouse", "price": 24.99, "stock": 58 }|
+
+\begin{verbatim}
+GET product:B25
+\end{verbatim}
+Returns: \verb|{ "name": "Mechanical Keyboard", "price": 79.50, "stock": 30 }|
+
+\textbf{Step 3: Compute Total Cost}
+
+Using the retrieved data:
+\begin{align*}
+\text{Total} &= (\text{price of A10} \times \text{qty of A10}) + (\text{price of B25} \times \text{qty of B25}) \\
+&= (24.99 \times 2) + (79.50 \times 1) \\
+&= 49.98 + 79.50 \\
+&= 129.48
+\end{align*}
+
+\textbf{Summary of Data Lookups:}
+\begin{enumerate}
+    \item \verb|GET user:1001:cart| - Retrieve the cart to get the list of items and quantities
+    \item \verb|GET product:A10| - Retrieve product A10 details (including price)
+    \item \verb|GET product:B25| - Retrieve product B25 details (including price)
+\end{enumerate}
+
+
+% Question 3
+\section{Question 3}
+
+\subsection{Question 3(a)}
+
+\textbf{Which statement is true about column-oriented stores?}
+
+\textit{Answer:} \textbf{C. They are well-suited for analytical queries that aggregate over a few columns.}
+
+\textbf{Explanation:} Column-oriented stores excel at analytical queries that need to aggregate over a few columns (e.g., SUM, AVG, COUNT) because they only need to read the relevant columns from disk, not entire rows. This minimizes I/O and improves query performance for OLAP workloads.
+
+
+
+\subsection{Question 3(b)}
+
+\textbf{How are values of a column typically stored in a columnar store?}
+
+\textit{Answer:} \textbf{B. Together, often compressed, as a contiguous block}
+
+\textbf{Explanation:}
+
+In column-oriented stores, all values for a single column are stored together in a contiguous block on disk. This storage pattern enables:
+
+
+
+
+\subsection{Question 3(c)}
+
+\textbf{Which query benefits most from a column-oriented store?}
+
+\textit{Answer:} \textbf{C. SELECT AVG(Salary) FROM Employees WHERE Department = 'Engineering';}
+
+\textbf{Explanation:}
+
+This query benefits most from column-oriented storage because:
+\begin{itemize}
+    \item It only needs to access \textbf{two columns}: Department and Salary
+    \item It performs an \textbf{aggregation} (AVG) over a subset of rows
+    \item The column store can read only the Department and Salary columns, ignoring all other employee attributes
+    \item Column compression can significantly reduce the amount of data read from disk
+\end{itemize}
+
+
+\subsection{Question 3(d)}
+
+\textbf{Data Read from Disk Calculation:}
+
+Given:
+\begin{itemize}
+    \item Table: Sales(Date, CustomerID, ProductID, Amount)
+    \item Each field: 8 bytes
+    \item Total rows: 1 million
+    \item Query: SELECT SUM(Amount) FROM Sales;
+\end{itemize}
+
+\textbf{(1) Row-oriented store:}
+
+In a row-oriented store, all fields of each row are stored together. To compute SUM(Amount), we must read entire rows:
+
+\begin{align*}
+\text{Bytes per row} &= 4 \text{ fields} \times 8 \text{ bytes/field} = 32 \text{ bytes} \\
+\text{Total rows} &= 1,000,000 \\
+\text{Total data read} &= 32 \times 1,000,000 = 32,000,000 \text{ bytes} \\
+&= 32 \text{ MB}
+\end{align*}
+
+\textit{Answer:} \textbf{32 MB must be read from disk}
+
+\textbf{(2) Column-oriented store:}
+
+In a column-oriented store, each column is stored separately. We only need to read the Amount column:
+
+\begin{align*}
+\text{Bytes per Amount value} &= 8 \text{ bytes} \\
+\text{Total rows} &= 1,000,000 \\
+\text{Total data read} &= 8 \times 1,000,000 = 8,000,000 \text{ bytes} \\
+&= 8 \text{ MB}
+\end{align*}
+
+\textit{Answer:} \textbf{8 MB must be read from disk}
+
+\textbf{Performance Advantage:}
+
+The column-oriented store reads \textbf{4 times less data} (8 MB vs 32 MB), demonstrating the significant I/O advantage of columnar storage for analytical queries that access only a subset of columns.
+
+
+% Question 4
+\section{Question 4}
+
+\subsection{Question 4(a)}
+
+
+
+\textbf{(i) All "users" documents in a collection users must have the exact same fields and types.}
+
+\textit{Answer:} \textbf{FALSE}
+
+\textbf{Explanation:} Document databases like MongoDB and CouchDB support \textbf{schema flexibility} (also called "schema-less" or "dynamic schema"), meaning documents within the same collection can have different fields and field types. This allows new fields to be added to some documents without affecting others, which is a key advantage over traditional relational databases with rigid schemas. 
+
+
+\textbf{(ii) The cart field inside the user document shows that document databases support nested structures within a single record.}
+
+\textit{Answer:} \textbf{TRUE}
+
+\textbf{Explanation:} Document databases excel at storing hierarchical and nested data structures. The user document contains a \texttt{cart} field that is itself a complex structure (an array of objects), where each cart item has nested fields like \texttt{pid} and \texttt{qty}. This demonstrates \textbf{embedding} or \textbf{denormalization}, where related data is stored together in a single document rather than requiring separate tables and joins as in relational databases.
+
+\textbf{(iii) When the price of product A10 changes, all historical orders automatically reflect the new price.}
+
+\textit{Answer:} \textbf{FALSE}
+
+\textbf{Explanation:} Document databases do not automatically update embedded data when the source changes. The \texttt{orders} collection stores the price (24.99) embedded within each order document, so when the price in the \texttt{products} collection changes, existing orders retain their original embedded price values. This is actually desirable behavior for orders since it preserves the historical price at the time of purchase rather than updating it retroactively.
+
+\textbf{(iv) A MongoDB-style query like \texttt{db.users.find(\{ "cart.pid": "B25" \})} will return all users who have product B25 in their cart.}
+
+\textit{Answer:} \textbf{TRUE}
+
+\textbf{Explanation:} MongoDB and similar document databases support querying nested fields using \textbf{dot notation}. The query \texttt{"cart.pid"} allows MongoDB to search through the \texttt{cart} array in each user document and match any document where at least one item in the cart array has \texttt{pid: "B25"}. This query would return the user with id 1001, since their cart contains \texttt{\{"pid": "B25", "qty": 1\}}, demonstrating the power of document databases to query complex nested structures without requiring joins.
+
+
+
+
+
+
+% Add your answer here
+
+
+% Add more sections as needed for additional questions
+
+\end{document}
+
